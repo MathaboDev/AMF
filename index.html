@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Become a Member — Active Mobility Forum</title>
+  <meta name="description" content="Choose your membership tier and support the Active Mobility Forum's work for safer streets across South Africa." />
+  <meta property="og:title" content="Become a Member — Active Mobility Forum" />
+  <meta property="og:description" content="Pick a tier, choose how often you'd like to contribute, and pay securely with Paystack." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://js.paystack.co/v1/inline.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="page">
+    <main>
+      <section>
+        <div class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+          <header class="fade-in" style="max-width:42rem; margin-bottom:2.5rem;">
+            <p class="eyebrow">Membership</p>
+            <h1 class="headline">Become a member of the <span class="accent">Active Mobility Forum</span>.</h1>
+            <p class="lede">Pick a tier, choose how often you'd like to contribute, and pay securely with Paystack.</p>
+          </header>
+          <form id="membership-form" class="form-grid fade-in" novalidate>
+            <!-- LEFT: details -->
+            <div>
+              <h2 class="section-title">Details</h2>
+              <div class="fields-row">
+                <label class="field">
+                  <span class="label">First name</span>
+                  <input id="firstName" type="text" autocomplete="given-name" maxlength="60" required />
+                </label>
+                <label class="field">
+                  <span class="label">Last name</span>
+                  <input id="lastName" type="text" autocomplete="family-name" maxlength="60" required />
+                </label>
+              </div>
+              <div class="fields-row">
+                <label class="field">
+                  <span class="label">Email address</span>
+                  <input id="email" type="email" autocomplete="email" maxlength="120" required />
+                </label>
+                <label class="field">
+                  <span class="label">Phone number (optional)</span>
+                  <input id="phone" type="tel" autocomplete="tel" maxlength="20" />
+                </label>
+              </div>
+              <div class="fields-row">
+                <label class="field select-field">
+                  <span class="label">Select membership tier</span>
+                  <select id="tier">
+                    <option value="open-door">Open Door (Free)</option>
+                    <option value="community">Community Advocate</option>
+                    <option value="champion">Champion Advocate</option>
+                    <option value="family">Family Advocate</option>
+                  </select>
+                </label>
+                <label class="field select-field" id="frequency-field" style="display:none;">
+                  <span class="label">Payment frequency</span>
+                  <select id="frequency">
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </label>
+              </div>
+              <div class="payment">
+                <h2 class="section-title" style="margin-bottom:0.25rem;">Payment</h2>
+                <p class="sub">All transactions are secure and encrypted.</p>
+                <div>
+                  <span class="processor"><span class="dot"></span>Paystack</span>
+                </div>
+                <div class="methods">
+                  <!-- Cards -->
+                  <div class="method">
+                    <span class="icon">
+                      <svg width="36" height="24" viewBox="0 0 48 32" aria-label="Visa"><rect width="48" height="32" rx="3" fill="#1A1F71"/><text x="24" y="21" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="system-ui, sans-serif">VISA</text></svg>
+                      <svg width="36" height="24" viewBox="0 0 48 32" aria-label="Mastercard"><rect width="48" height="32" rx="3" fill="#f5f5f5"/><circle cx="18" cy="16" r="10" fill="#EB001B"/><circle cx="30" cy="16" r="10" fill="#F79E1B" opacity="0.85"/></svg>
+                      <svg width="36" height="24" viewBox="0 0 48 32" aria-label="American Express"><rect width="48" height="32" rx="3" fill="#016FD0"/><text x="24" y="20" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="system-ui, sans-serif">AMEX</text></svg>
+                    </span>
+                    <div>
+                      <p class="title">Cards</p>
+                      <p class="desc">Visa, Mastercard, Amex</p>
+                    </div>
+                  </div>
+                  <!-- Instant EFT -->
+                  <div class="method">
+                    <span class="icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Instant EFT"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </span>
+                    <div>
+                      <p class="title">Instant EFT</p>
+                      <p class="desc">Powered securely by Ozow</p>
+                    </div>
+                  </div>
+                  <!-- Capitec Pay -->
+                  <div class="method">
+                    <span class="icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Capitec Pay"><path d="M3 21h18"/><path d="M5 21v-8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8"/><path d="M12 11V7a4 4 0 0 1 4-4"/><path d="M9 22v-3"/><path d="M15 22v-3"/></svg>
+                    </span>
+                    <div>
+                      <p class="title">Capitec Pay</p>
+                      <p class="desc">Direct bank authentication</p>
+                    </div>
+                  </div>
+                  <!-- Scan to Pay -->
+                  <div class="method">
+                    <span class="icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Scan to Pay"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M17 14h.01"/><path d="M21 14h.01"/><path d="M17 18h.01"/><path d="M21 18h.01"/><path d="M14 21h7v-7h-7"/></svg>
+                    </span>
+                    <div>
+                      <p class="title">Scan to Pay</p>
+                      <p class="desc">QR code via SnapScan</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="form-alert" class="alert" role="alert" style="display:none;"></div>
+              <button id="cta" type="submit" class="cta">Pay now</button>
+            </div>
+            <!-- RIGHT: summary (sticky on desktop) -->
+            <aside class="summary-wrap">
+              <div id="summary-card" class="summary">
+                <h2>Membership summary</h2>
+                <dl>
+                  <div class="row"><dt>Membership tier:</dt><dd id="sum-tier">Open Door</dd></div>
+                  <div class="row"><dt>Payment Frequency:</dt><dd id="sum-freq">—</dd></div>
+                  <div class="total"><dt>Total:</dt><dd id="sum-total">Free</dd></div>
+                </dl>
+                <p id="sum-note" class="note" style="display:none;"></p>
+              </div>
+            </aside>
+          </form>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <div class="container">
+        <div>
+          <h3>GET IN TOUCH</h3>
+          <p>©Active Mobility Forum — Cape Town, Johannesburg, Durban &amp; Pretoria</p>
+          <p>+27 76 451 8656</p>
+        </div>
+        <div class="right">
+          <div class="brand">AMF</div>
+          <p class="tagline">We Advocate for Infrastructure, Not Paint.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
