@@ -1,33 +1,42 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AMF</title>
+  <title>AMF — Membership</title>
   <meta name="description" content="Choose your membership tier and support the Active Mobility Forum's work for safer streets across South Africa." />
   <meta property="og:title" content="Become a Member — Active Mobility Forum" />
   <meta property="og:description" content="Pick a tier, choose how often you'd like to contribute, and pay securely with Paystack." />
+  <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <!-- Paystack payment gateway -->
   <script src="https://js.paystack.co/v1/inline.js" defer></script>
+  <!-- Form logic and payment handling -->
   <script src="app.js" defer></script>
 </head>
+
 <body>
   <div class="page">
     <main>
       <section>
-        <div class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
-          <header class="fade-in" style="max-width:42rem; margin-bottom:2.5rem;">
-
+        <div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+          <!-- Page header -->
+          <header class="fade-in" style="max-width: 42rem; margin-bottom: 2.5rem;">
             <h1 class="headline">Become a member of the <span class="accent">Active Mobility Forum</span>.</h1>
             <p class="lede">Pick a tier, choose how often you'd like to contribute, and pay securely with Paystack.</p>
           </header>
+
+          <!-- Membership form grid -->
           <form id="membership-form" class="form-grid fade-in" novalidate>
-            <!-- LEFT: details -->
+            <!-- LEFT: Member details and payment -->
             <div>
               <h2 class="section-title">Details</h2>
+
+              <!-- Name fields -->
               <div class="fields-row">
                 <label class="field">
                   <span class="label">First name</span>
@@ -38,6 +47,8 @@
                   <input id="lastName" type="text" autocomplete="family-name" maxlength="60" required />
                 </label>
               </div>
+
+              <!-- Contact fields -->
               <div class="fields-row">
                 <label class="field">
                   <span class="label">Email address</span>
@@ -48,6 +59,8 @@
                   <input id="phone" type="tel" autocomplete="tel" maxlength="20" />
                 </label>
               </div>
+
+              <!-- Membership tier and frequency selection -->
               <div class="fields-row">
                 <label class="field select-field">
                   <span class="label">Select membership tier</span>
@@ -58,7 +71,7 @@
                     <option value="family">Family Advocate</option>
                   </select>
                 </label>
-                <label class="field select-field" id="frequency-field" style="display:none;">
+                <label class="field select-field" id="frequency-field" style="display: none;">
                   <span class="label">Payment frequency</span>
                   <select id="frequency">
                     <option value="monthly">Monthly</option>
@@ -67,49 +80,93 @@
                   </select>
                 </label>
               </div>
+
+              <!-- Payment section -->
               <div class="payment">
-                <h2 class="section-title" style="margin-bottom:0.25rem;">Payment</h2>
+                <h2 class="section-title" style="margin-bottom: 0.25rem;">Payment</h2>
                 <p class="sub">All transactions are secure and encrypted.</p>
+
+                <!-- Paystack badge -->
                 <div>
                   <span class="processor"><span class="dot"></span>Paystack</span>
                 </div>
+
+                <!-- Supported payment methods -->
                 <div class="methods">
-                  <!-- Cards -->
+                  <!-- Card payments -->
                   <div class="method">
                     <span class="icon">
-                      <svg width="36" height="24" viewBox="0 0 48 32" aria-label="Visa"><rect width="48" height="32" rx="3" fill="#1A1F71"/><text x="24" y="21" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="system-ui, sans-serif">VISA</text></svg>
-                      <svg width="36" height="24" viewBox="0 0 48 32" aria-label="Mastercard"><rect width="48" height="32" rx="3" fill="#f5f5f5"/><circle cx="18" cy="16" r="10" fill="#EB001B"/><circle cx="30" cy="16" r="10" fill="#F79E1B" opacity="0.85"/></svg>
-                      <svg width="36" height="24" viewBox="0 0 48 32" aria-label="American Express"><rect width="48" height="32" rx="3" fill="#016FD0"/><text x="24" y="20" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="system-ui, sans-serif">AMEX</text></svg>
+                      <!-- Visa logo -->
+                      <svg width="36" height="24" viewBox="0 0 48 32" aria-label="Visa">
+                        <rect width="48" height="32" rx="3" fill="#1A1F71" />
+                        <text x="24" y="21" text-anchor="middle" fill="white" font-size="11" font-weight="700"
+                          font-family="system-ui, sans-serif">VISA</text>
+                      </svg>
+                      <!-- Mastercard logo -->
+                      <svg width="36" height="24" viewBox="0 0 48 32" aria-label="Mastercard">
+                        <rect width="48" height="32" rx="3" fill="#f5f5f5" />
+                        <circle cx="18" cy="16" r="10" fill="#EB001B" />
+                        <circle cx="30" cy="16" r="10" fill="#F79E1B" opacity="0.85" />
+                      </svg>
+                      <!-- American Express logo -->
+                      <svg width="36" height="24" viewBox="0 0 48 32" aria-label="American Express">
+                        <rect width="48" height="32" rx="3" fill="#016FD0" />
+                        <text x="24" y="20" text-anchor="middle" fill="white" font-size="9" font-weight="700"
+                          font-family="system-ui, sans-serif">AMEX</text>
+                      </svg>
                     </span>
                     <div>
                       <p class="title">Cards</p>
                       <p class="desc">Visa, Mastercard, Amex</p>
                     </div>
                   </div>
-                  <!-- Instant EFT -->
+
+                  <!-- Instant EFT (Ozow) -->
                   <div class="method">
                     <span class="icon">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Instant EFT"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Instant EFT">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                      </svg>
                     </span>
                     <div>
                       <p class="title">Instant EFT</p>
                       <p class="desc">Powered securely by Ozow</p>
                     </div>
                   </div>
+
                   <!-- Capitec Pay -->
                   <div class="method">
                     <span class="icon">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Capitec Pay"><path d="M3 21h18"/><path d="M5 21v-8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8"/><path d="M12 11V7a4 4 0 0 1 4-4"/><path d="M9 22v-3"/><path d="M15 22v-3"/></svg>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Capitec Pay">
+                        <path d="M3 21h18" />
+                        <path d="M5 21v-8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8" />
+                        <path d="M12 11V7a4 4 0 0 1 4-4" />
+                        <path d="M9 22v-3" />
+                        <path d="M15 22v-3" />
+                      </svg>
                     </span>
                     <div>
                       <p class="title">Capitec Pay</p>
                       <p class="desc">Direct bank authentication</p>
                     </div>
                   </div>
-                  <!-- Scan to Pay -->
+
+                  <!-- Scan to Pay (SnapScan) -->
                   <div class="method">
                     <span class="icon">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Scan to Pay"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M17 14h.01"/><path d="M21 14h.01"/><path d="M17 18h.01"/><path d="M21 18h.01"/><path d="M14 21h7v-7h-7"/></svg>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="Scan to Pay">
+                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                        <path d="M17 14h.01" />
+                        <path d="M21 14h.01" />
+                        <path d="M17 18h.01" />
+                        <path d="M21 18h.01" />
+                        <path d="M14 21h7v-7h-7" />
+                      </svg>
                     </span>
                     <div>
                       <p class="title">Scan to Pay</p>
@@ -118,25 +175,41 @@
                   </div>
                 </div>
               </div>
-              <div id="form-alert" class="alert" role="alert" style="display:none;"></div>
+
+              <!-- Form validation error display -->
+              <div id="form-alert" class="alert" role="alert" style="display: none;"></div>
+
+              <!-- Submit button -->
               <button id="cta" type="submit" class="cta">Pay now</button>
             </div>
-            <!-- RIGHT: summary (sticky on desktop) -->
+
+            <!-- RIGHT: Membership summary (sticky on desktop) -->
             <aside class="summary-wrap">
               <div id="summary-card" class="summary">
                 <h2>Membership summary</h2>
                 <dl>
-                  <div class="row"><dt>Membership tier:</dt><dd id="sum-tier">Open Door</dd></div>
-                  <div class="row"><dt>Payment Frequency:</dt><dd id="sum-freq">—</dd></div>
-                  <div class="total"><dt>Total:</dt><dd id="sum-total">Free</dd></div>
+                  <div class="row">
+                    <dt>Membership tier:</dt>
+                    <dd id="sum-tier">Open Door</dd>
+                  </div>
+                  <div class="row">
+                    <dt>Payment Frequency:</dt>
+                    <dd id="sum-freq">—</dd>
+                  </div>
+                  <div class="total">
+                    <dt>Total:</dt>
+                    <dd id="sum-total">Free</dd>
+                  </div>
                 </dl>
-                <p id="sum-note" class="note" style="display:none;"></p>
+                <p id="sum-note" class="note" style="display: none;"></p>
               </div>
             </aside>
           </form>
         </div>
       </section>
     </main>
+
+    <!-- Footer -->
     <footer class="footer">
       <div class="container">
         <div>
@@ -152,4 +225,5 @@
     </footer>
   </div>
 </body>
+
 </html>

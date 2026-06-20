@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Thank you — Active Mobility Forum</title>
     <meta name="description" content="Thanks for joining the Active Mobility Forum." />
+    <meta property="og:title" content="Thank you — Active Mobility Forum" />
+    <meta property="og:description" content="Your membership signup has been processed." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap"
@@ -17,109 +19,22 @@
     <div class="page">
         <main>
             <div class="container">
-                <div id="success-container" style="display: none;">
+                <!-- Single template - content populated dynamically -->
                 <div class="success-card fade-in">
-                    <div class="check success">
+                    <div id="status-icon" class="check success">
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12" />
                         </svg>
                     </div>
-                    <p class="eyebrow">Welcome</p>
-                    <h1>Thank you for joining the Active Mobility Forum.</h1>
-                    <p class="lede" id="lede">
-                        We've received your details and your support is making safer
-                        streets possible.
+                    <p class="eyebrow" id="status-label">Welcome</p>
+                    <h1 id="status-title">Thank you for joining the Active Mobility Forum.</h1>
+                    <p class="lede" id="status-message">
+                        We've received your details and your support is making safer streets possible.
                     </p>
-                    <dl id="details" style="display: none">
-                        <div class="row">
-                            <dt>Name</dt>
-                            <dd id="d-name"></dd>
-                        </div>
-                        <div class="row">
-                            <dt>Email</dt>
-                            <dd id="d-email"></dd>
-                        </div>
-                        <div class="row">
-                            <dt>Membership tier</dt>
-                            <dd id="d-tier"></dd>
-                        </div>
-                        <div class="row">
-                            <dt>Frequency</dt>
-                            <dd id="d-freq"></dd>
-                        </div>
-                        <div class="row">
-                            <dt>Amount</dt>
-                            <dd id="d-amount"></dd>
-                        </div>
-                        <div class="row">
-                            <dt>Reference</dt>
-                            <dd id="d-ref" style="
-                        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-                      "></dd>
-                        </div>
-                        <div class="row">
-                            <dt>Date</dt>
-                            <dd id="d-at"></dd>
-                        </div>
-                    </dl>
-                    <!--   INSERT WEBSITE LINK-->
-                    <div class="actions">
-                        <a id="wa-link" class="cta" style="
-                  text-decoration: none;
-                  display: block;
-                  text-align: center;
-                " href="https://chat.whatsapp.com/your-invite-code" target="_blank" rel="noopener">Join our WhatsApp
-                            Community</a>
-
-                        <a class="btn-outline" href="https://www.activemobilityforum.co.za/">Back to Website</a>
-                    </div>
+                    <dl id="details" style="display: none"></dl>
+                    <div class="actions" id="actions"></div>
                 </div>
-            </div>
-
-            <div id="failure-container" style="display: none;">
-                <div class="success-card fade-in">
-                    <div class="check failure">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                    </div>
-                    <p class="eyebrow">Transaction Failed</p>
-                    <h1 id="failure-title">Payment Could Not Be Processed</h1>
-                    <p class="lede" id="failure-message">
-                        Your payment was not completed. This could be due to insufficient funds, an expired card, or a network issue.
-                    </p>
-                    <dl id="failure-details" style="display: none">
-                        <div class="row">
-                            <dt>Email</dt>
-                            <dd id="f-email"></dd>
-                        </div>
-                        <div class="row">
-                            <dt>Membership Tier</dt>
-                            <dd id="f-tier"></dd>
-                        </div>
-                        <div class="row">
-                            <dt>Amount</dt>
-                            <dd id="f-amount"></dd>
-                        </div>
-                        <div class="row">
-                            <dt>Time</dt>
-                            <dd id="f-at"></dd>
-                        </div>
-                    </dl>
-                    <div class="actions">
-                        <a id="retry-btn" class="cta" style="
-                  text-decoration: none;
-                  display: block;
-                  text-align: center;
-                ">Try Payment Again</a>
-
-                        <a class="btn-outline" href="https://www.activemobilityforum.co.za/">Back to Website</a>
-                    </div>
-                </div>
-            </div>
             </div>
         </main>
         <footer class="footer">
@@ -133,86 +48,237 @@
                     <p>+27 76 451 8656</p>
                 </div>
                 <div class="right">
-                    <div class="brand">ACTIVE<br />MOBILITY<br />FORUM</div>
+                    <div class="brand">Active Mobility <br>Forum</div>
                     <p class="tagline">We Advocate for Infrastructure, Not Paint.</p>
                 </div>
             </div>
         </footer>
     </div>
-    <script>
-        (function () {
-            try {
-                // Check for success data
-                var successRaw = sessionStorage.getItem("amf:success");
-                // Check for failure data
-                var failureRaw = sessionStorage.getItem("amf:failure");
 
-                if (successRaw) {
-                    // SHOW SUCCESS STATE
-                    var d = JSON.parse(successRaw);
-                    document.getElementById("success-container").style.display = "block";
-                    document.getElementById("failure-container").style.display = "none";
-                    
-                    document.getElementById("details").style.display = "flex";
-                    document.getElementById("d-name").textContent = d.name || "—";
-                    document.getElementById("d-email").textContent = d.email || "—";
-                    document.getElementById("d-tier").textContent = d.tier || "—";
-                    document.getElementById("d-freq").textContent = d.frequency || "—";
-                    document.getElementById("d-amount").textContent =
-                        d.amount === 0 || d.amount == null
-                            ? "Free"
-                            : "R" + Number(d.amount).toLocaleString("en-ZA");
-                    document.getElementById("d-ref").textContent = d.reference || "—";
-                    document.getElementById("d-at").textContent = d.at
-                        ? new Date(d.at).toLocaleString("en-ZA")
-                        : "—";
-                    
-                    // Clean up after displaying
-                    sessionStorage.removeItem("amf:success");
-                } else if (failureRaw) {
-                    // SHOW FAILURE STATE
-                    var f = JSON.parse(failureRaw);
-                    document.getElementById("failure-container").style.display = "block";
-                    document.getElementById("success-container").style.display = "none";
-                    
-                    // Set failure-specific messaging
-                    var failureTitle = document.getElementById("failure-title");
-                    var failureMessage = document.getElementById("failure-message");
-                    
-                    if (f.reason === "cancelled") {
-                        failureTitle.textContent = "Payment Cancelled";
-                        failureMessage.textContent = "You cancelled the payment. No amount was charged to your account.";
-                    } else if (f.reason === "declined") {
-                        failureTitle.textContent = "Payment Declined";
-                        failureMessage.textContent = "Your payment was declined by your bank or payment provider. Please check your card details and try again.";
-                    } else if (f.reason === "network") {
-                        failureTitle.textContent = "Network Error";
-                        failureMessage.textContent = "There was a network error processing your payment. Please check your connection and try again.";
-                    } else {
-                        failureTitle.textContent = "Payment Could Not Be Processed";
-                        failureMessage.textContent = f.message || "Your payment was not completed. This could be due to insufficient funds, an expired card, or a network issue.";
-                    }
-                    
-                    document.getElementById("failure-details").style.display = "flex";
-                    document.getElementById("f-email").textContent = f.email || "—";
-                    document.getElementById("f-tier").textContent = f.tier || "—";
-                    document.getElementById("f-amount").textContent =
-                        f.amount === 0 || f.amount == null
-                            ? "Free"
-                            : "R" + Number(f.amount).toLocaleString("en-ZA");
-                    document.getElementById("f-at").textContent = f.at
-                        ? new Date(f.at).toLocaleString("en-ZA")
-                        : "—";
-                    
-                    // Set retry button to go back to form
-                    var retryBtn = document.getElementById("retry-btn");
-                    retryBtn.href = f.formUrl || "index.html";
-                    
-                    // Clean up after displaying
-                    sessionStorage.removeItem("amf:failure");
+    <script>
+        /**
+         * Active Mobility Forum — Success/Failure Page
+         * 
+         * Retrieves transaction result from sessionStorage and displays
+         * appropriate success or failure message with transaction details.
+         */
+
+        (function () {
+            "use strict";
+
+            // ===== UTILITY FUNCTIONS =====
+
+            /**
+             * Format number as South African Rand
+             * @param {number} n - Amount to format
+             * @returns {string}
+             */
+            function fmtZAR(n) {
+                return "R" + n.toLocaleString("en-ZA");
+            }
+
+            /**
+             * Query selector helper
+             * @param {string} sel - CSS selector
+             * @returns {Element|null}
+             */
+            function $(sel) {
+                return document.querySelector(sel);
+            }
+
+            /**
+             * Create and append a definition list row
+             * @param {HTMLElement} container - DL element to append to
+             * @param {string} label - Label (dt)
+             * @param {string} value - Value (dd)
+             */
+            function addDetailRow(container, label, value) {
+                var row = document.createElement("div");
+                row.className = "row";
+
+                var dt = document.createElement("dt");
+                dt.textContent = label;
+
+                var dd = document.createElement("dd");
+                dd.textContent = value;
+
+                row.appendChild(dt);
+                row.appendChild(dd);
+                container.appendChild(row);
+            }
+
+            /**
+             * Render success state with transaction details
+             * @param {Object} data - Success data from sessionStorage
+             */
+            function renderSuccess(data) {
+                var icon = $("#status-icon");
+                icon.className = "check success";
+                icon.innerHTML =
+                    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>';
+
+                $("#status-label").textContent = "Welcome";
+                $("#status-title").textContent =
+                    "Thank you for joining the Active Mobility Forum.";
+                $("#status-message").textContent =
+                    "We've received your details and your support is making safer streets possible.";
+
+                // Populate transaction details
+                var details = $("#details");
+                details.innerHTML = ""; // Clear any previous content
+                addDetailRow(details, "Name", data.name || "—");
+                addDetailRow(details, "Email", data.email || "—");
+                addDetailRow(details, "Membership tier", data.tier || "—");
+                addDetailRow(details, "Frequency", data.frequency || "—");
+                addDetailRow(
+                    details,
+                    "Amount",
+                    data.amount === 0 || data.amount == null
+                        ? "Free"
+                        : fmtZAR(data.amount)
+                );
+                addDetailRow(details, "Reference", data.reference || "—");
+                addDetailRow(
+                    details,
+                    "Date",
+                    data.at ? new Date(data.at).toLocaleString("en-ZA") : "—"
+                );
+                details.style.display = "flex";
+
+                // Populate actions
+                var actions = $("#actions");
+                actions.innerHTML = "";
+
+                var waLink = document.createElement("a");
+                waLink.className = "cta";
+                waLink.href = "https://chat.whatsapp.com/your-invite-code";
+                waLink.target = "_blank";
+                waLink.rel = "noopener";
+                waLink.textContent = "Join our WhatsApp Community";
+                waLink.style.textDecoration = "none";
+                waLink.style.display = "block";
+                waLink.style.textAlign = "center";
+
+                var websiteLink = document.createElement("a");
+                websiteLink.className = "btn-outline";
+                websiteLink.href = "https://www.activemobilityforum.co.za/";
+                websiteLink.textContent = "Back to Website";
+
+                actions.appendChild(waLink);
+                actions.appendChild(websiteLink);
+            }
+
+            /**
+             * Error message templates by reason
+             */
+            var errorTemplates = {
+                cancelled: {
+                    title: "Payment Cancelled",
+                    message: "You cancelled the payment. No amount was charged to your account."
+                },
+                declined: {
+                    title: "Payment Declined",
+                    message:
+                        "Your payment was declined by your bank or payment provider. Please check your card details and try again."
+                },
+                network: {
+                    title: "Network Error",
+                    message:
+                        "There was a network error processing your payment. Please check your connection and try again."
+                },
+                error: {
+                    title: "Payment Could Not Be Processed",
+                    message:
+                        "Your payment was not completed. This could be due to insufficient funds, an expired card, or a network issue."
                 }
-            } catch (_) {
-                /* ignore */
+            };
+
+            /**
+             * Render failure state with error details
+             * @param {Object} data - Failure data from sessionStorage
+             */
+            function renderFailure(data) {
+                var icon = $("#status-icon");
+                icon.className = "check failure";
+                icon.innerHTML =
+                    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>';
+
+                // Look up error template or use generic error
+                var template = errorTemplates[data.reason] || errorTemplates.error;
+
+                $("#status-label").textContent = "Transaction Failed";
+                $("#status-title").textContent = template.title;
+                $("#status-message").textContent = template.message;
+
+                // Populate transaction attempt details
+                var details = $("#details");
+                details.innerHTML = ""; // Clear any previous content
+                addDetailRow(details, "Email", data.email || "—");
+                addDetailRow(details, "Membership Tier", data.tier || "—");
+                addDetailRow(
+                    details,
+                    "Amount",
+                    data.amount === 0 || data.amount == null
+                        ? "Free"
+                        : fmtZAR(data.amount)
+                );
+                addDetailRow(
+                    details,
+                    "Time",
+                    data.at ? new Date(data.at).toLocaleString("en-ZA") : "—"
+                );
+                details.style.display = "flex";
+
+                // Populate actions with retry button
+                var actions = $("#actions");
+                actions.innerHTML = "";
+
+                var retryBtn = document.createElement("a");
+                retryBtn.className = "cta";
+                retryBtn.href = data.formUrl || "index.html";
+                retryBtn.textContent = "Try Payment Again";
+                retryBtn.style.textDecoration = "none";
+                retryBtn.style.display = "block";
+                retryBtn.style.textAlign = "center";
+
+                var websiteLink = document.createElement("a");
+                websiteLink.className = "btn-outline";
+                websiteLink.href = "https://www.activemobilityforum.co.za/";
+                websiteLink.textContent = "Back to Website";
+
+                actions.appendChild(retryBtn);
+                actions.appendChild(websiteLink);
+            }
+
+            /**
+             * Initialize page - check for success or failure data in sessionStorage
+             */
+            function init() {
+                try {
+                    var successRaw = sessionStorage.getItem("amf:success");
+                    var failureRaw = sessionStorage.getItem("amf:failure");
+
+                    if (successRaw) {
+                        var successData = JSON.parse(successRaw);
+                        renderSuccess(successData);
+                        sessionStorage.removeItem("amf:success");
+                    } else if (failureRaw) {
+                        var failureData = JSON.parse(failureRaw);
+                        renderFailure(failureData);
+                        sessionStorage.removeItem("amf:failure");
+                    }
+                    // If neither exists, page displays default success message
+                } catch (err) {
+                    console.error("Error processing transaction result:", err);
+                    // Display generic success message on error
+                }
+            }
+
+            // Initialize when DOM is ready
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", init);
+            } else {
+                init();
             }
         })();
     </script>
