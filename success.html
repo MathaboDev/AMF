@@ -8,7 +8,7 @@
     <meta name="description" content="Thanks for joining the Active Mobility Forum." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
 </head>
@@ -17,8 +17,9 @@
     <div class="page">
         <main>
             <div class="container">
+                <div id="success-container" style="display: none;">
                 <div class="success-card fade-in">
-                    <div class="check">
+                    <div class="check success">
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12" />
@@ -54,8 +55,8 @@
                         <div class="row">
                             <dt>Reference</dt>
                             <dd id="d-ref" style="
-                    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-                  "></dd>
+                        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                      "></dd>
                         </div>
                         <div class="row">
                             <dt>Date</dt>
@@ -74,6 +75,51 @@
                         <a class="btn-outline" href="https://www.activemobilityforum.co.za/">Back to Website</a>
                     </div>
                 </div>
+            </div>
+
+            <div id="failure-container" style="display: none;">
+                <div class="success-card fade-in">
+                    <div class="check failure">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </div>
+                    <p class="eyebrow">Transaction Failed</p>
+                    <h1 id="failure-title">Payment Could Not Be Processed</h1>
+                    <p class="lede" id="failure-message">
+                        Your payment was not completed. This could be due to insufficient funds, an expired card, or a network issue.
+                    </p>
+                    <dl id="failure-details" style="display: none">
+                        <div class="row">
+                            <dt>Email</dt>
+                            <dd id="f-email"></dd>
+                        </div>
+                        <div class="row">
+                            <dt>Membership Tier</dt>
+                            <dd id="f-tier"></dd>
+                        </div>
+                        <div class="row">
+                            <dt>Amount</dt>
+                            <dd id="f-amount"></dd>
+                        </div>
+                        <div class="row">
+                            <dt>Time</dt>
+                            <dd id="f-at"></dd>
+                        </div>
+                    </dl>
+                    <div class="actions">
+                        <a id="retry-btn" class="cta" style="
+                  text-decoration: none;
+                  display: block;
+                  text-align: center;
+                ">Try Payment Again</a>
+
+                        <a class="btn-outline" href="https://www.activemobilityforum.co.za/">Back to Website</a>
+                    </div>
+                </div>
+            </div>
             </div>
         </main>
         <footer class="footer">
@@ -96,22 +142,75 @@
     <script>
         (function () {
             try {
-                var raw = sessionStorage.getItem("amf:success");
-                if (!raw) return;
-                var d = JSON.parse(raw);
-                document.getElementById("details").style.display = "flex";
-                document.getElementById("d-name").textContent = d.name || "—";
-                document.getElementById("d-email").textContent = d.email || "—";
-                document.getElementById("d-tier").textContent = d.tier || "—";
-                document.getElementById("d-freq").textContent = d.frequency || "—";
-                document.getElementById("d-amount").textContent =
-                    d.amount === 0 || d.amount == null
-                        ? "Free"
-                        : "R" + Number(d.amount).toLocaleString("en-ZA");
-                document.getElementById("d-ref").textContent = d.reference || "—";
-                document.getElementById("d-at").textContent = d.at
-                    ? new Date(d.at).toLocaleString("en-ZA")
-                    : "—";
+                // Check for success data
+                var successRaw = sessionStorage.getItem("amf:success");
+                // Check for failure data
+                var failureRaw = sessionStorage.getItem("amf:failure");
+
+                if (successRaw) {
+                    // SHOW SUCCESS STATE
+                    var d = JSON.parse(successRaw);
+                    document.getElementById("success-container").style.display = "block";
+                    document.getElementById("failure-container").style.display = "none";
+                    
+                    document.getElementById("details").style.display = "flex";
+                    document.getElementById("d-name").textContent = d.name || "—";
+                    document.getElementById("d-email").textContent = d.email || "—";
+                    document.getElementById("d-tier").textContent = d.tier || "—";
+                    document.getElementById("d-freq").textContent = d.frequency || "—";
+                    document.getElementById("d-amount").textContent =
+                        d.amount === 0 || d.amount == null
+                            ? "Free"
+                            : "R" + Number(d.amount).toLocaleString("en-ZA");
+                    document.getElementById("d-ref").textContent = d.reference || "—";
+                    document.getElementById("d-at").textContent = d.at
+                        ? new Date(d.at).toLocaleString("en-ZA")
+                        : "—";
+                    
+                    // Clean up after displaying
+                    sessionStorage.removeItem("amf:success");
+                } else if (failureRaw) {
+                    // SHOW FAILURE STATE
+                    var f = JSON.parse(failureRaw);
+                    document.getElementById("failure-container").style.display = "block";
+                    document.getElementById("success-container").style.display = "none";
+                    
+                    // Set failure-specific messaging
+                    var failureTitle = document.getElementById("failure-title");
+                    var failureMessage = document.getElementById("failure-message");
+                    
+                    if (f.reason === "cancelled") {
+                        failureTitle.textContent = "Payment Cancelled";
+                        failureMessage.textContent = "You cancelled the payment. No amount was charged to your account.";
+                    } else if (f.reason === "declined") {
+                        failureTitle.textContent = "Payment Declined";
+                        failureMessage.textContent = "Your payment was declined by your bank or payment provider. Please check your card details and try again.";
+                    } else if (f.reason === "network") {
+                        failureTitle.textContent = "Network Error";
+                        failureMessage.textContent = "There was a network error processing your payment. Please check your connection and try again.";
+                    } else {
+                        failureTitle.textContent = "Payment Could Not Be Processed";
+                        failureMessage.textContent = f.message || "Your payment was not completed. This could be due to insufficient funds, an expired card, or a network issue.";
+                    }
+                    
+                    document.getElementById("failure-details").style.display = "flex";
+                    document.getElementById("f-email").textContent = f.email || "—";
+                    document.getElementById("f-tier").textContent = f.tier || "—";
+                    document.getElementById("f-amount").textContent =
+                        f.amount === 0 || f.amount == null
+                            ? "Free"
+                            : "R" + Number(f.amount).toLocaleString("en-ZA");
+                    document.getElementById("f-at").textContent = f.at
+                        ? new Date(f.at).toLocaleString("en-ZA")
+                        : "—";
+                    
+                    // Set retry button to go back to form
+                    var retryBtn = document.getElementById("retry-btn");
+                    retryBtn.href = f.formUrl || "index.html";
+                    
+                    // Clean up after displaying
+                    sessionStorage.removeItem("amf:failure");
+                }
             } catch (_) {
                 /* ignore */
             }

@@ -105,41 +105,103 @@
       var planId = PLAN_IDS[t + "-" + f];
       cta.disabled = true;
       cta.textContent = "Opening Paystack…";
-      var handler = window.PaystackPop.setup({
-        key: PAYSTACK_PUBLIC_KEY,
-        email: email.value.trim(),
-        amount: amount * 100,
-        currency: "ZAR",
-        plan: planId,
-        metadata: {
-          custom_fields: [
-            { display_name: "Name",      variable_name: "name",      value: firstName.value + " " + lastName.value },
-            { display_name: "Tier",      variable_name: "tier",      value: TIERS[t].label },
-            { display_name: "Frequency", variable_name: "frequency", value: FREQUENCIES[f].label },
-            { display_name: "Phone",     variable_name: "phone",     value: phone.value || "—" }
-          ]
-        },
-        onSuccess: function (response) {
-          try {
-            sessionStorage.setItem("amf:success", JSON.stringify({
-              amount: amount,
-              tier: TIERS[t].label,
-              frequency: FREQUENCIES[f].label,
-              reference: response.reference,
-              email: email.value.trim(),
-              name: firstName.value + " " + lastName.value,
-              at: new Date().toISOString()
-            }));
-          } catch (_) { /* ignore */ }
-          window.location.href = "success.html";
-        },
-        onCancel: function () {
-          cta.disabled = false;
-          cta.textContent = "Pay now";
-          setError("Payment cancelled. Your details are still here — try again when ready.");
-        }
-      });
-      handler.openIframe();
+      try {
+        var handler = window.PaystackPop.setup({
+          key: PAYSTACK_PUBLIC_KEY,
+          email: email.value.trim(),
+          amount: amount * 100,
+          currency: "ZAR",
+          plan: planId,
+          metadata: {
+            custom_fields: [
+              { display_name: "Name",      variable_name: "name",      value: firstName.value + " " + lastName.value },
+              { display_name: "Tier",      variable_name: "tier",      value: TIERS[t].label },
+              { display_name: "Frequency", variable_name: "frequency", value: FREQUENCIES[f].label },
+              { display_name: "Phone",     variable_name: "phone",     value: phone.value || "—" }
+            ]
+          },
+          onSuccess: function (response) {
+            try {
+              sessionStorage.setItem("amf:success", JSON.stringify({
+                amount: amount,
+                tier: TIERS[t].label,
+                frequency: FREQUENCIES[f].label,
+                reference: response.reference,
+                email: email.value.trim(),
+                name: firstName.value + " " + lastName.value,
+                at: new Date().toISOString()
+              }));
+            } catch (_) { /* ignore */ }
+            window.location.href = "success.html";
+          },
+          onCancel: function () {
+            cta.disabled = false;
+            cta.textContent = "Pay now";
+            try {
+              sessionStorage.setItem("amf:failure", JSON.stringify({
+                email: email.value.trim(),
+                tier: TIERS[t].label,
+                amount: amount,
+                frequency: FREQUENCIES[f].label,
+                reason: "cancelled",
+                message: "You cancelled the payment. No amount was charged to your account.",
+                at: new Date().toISOString(),
+                formUrl: "index.html"
+              }));
+            } catch (_) { /* ignore */ }
+            window.location.href = "success.html";
+          },
+          onError: function (error) {
+            cta.disabled = false;
+            cta.textContent = "Pay now";
+            var reason = "error";
+            var message = "Payment processing error. Please try again.";
+            
+            if (error && error.message) {
+              if (error.message.toLowerCase().includes("declined") || error.message.toLowerCase().includes("rejected")) {
+                reason = "declined";
+                message = error.message;
+              } else if (error.message.toLowerCase().includes("network") || error.message.toLowerCase().includes("timeout")) {
+                reason = "network";
+                message = error.message;
+              }
+            }
+            
+            try {
+              sessionStorage.setItem("amf:failure", JSON.stringify({
+                email: email.value.trim(),
+                tier: TIERS[t].label,
+                amount: amount,
+                frequency: FREQUENCIES[f].label,
+                reason: reason,
+                message: message,
+                at: new Date().toISOString(),
+                formUrl: "index.html"
+              }));
+            } catch (_) { /* ignore */ }
+            window.location.href = "success.html";
+          }
+        });
+        handler.openIframe();
+      } catch (err) {
+        cta.disabled = false;
+        cta.textContent = "Pay now";
+        var fallbackReason = "error";
+        var fallbackMsg = err && err.message ? err.message : "Failed to initialize payment. Please try again.";
+        try {
+          sessionStorage.setItem("amf:failure", JSON.stringify({
+            email: email.value.trim(),
+            tier: TIERS[t].label,
+            amount: amount,
+            frequency: FREQUENCIES[f].label,
+            reason: fallbackReason,
+            message: fallbackMsg,
+            at: new Date().toISOString(),
+            formUrl: "index.html"
+          }));
+        } catch (_) { /* ignore */ }
+        window.location.href = "success.html";
+      }
     }
     // Sticky shadow effect on summary while scrolling
     function onScroll() {

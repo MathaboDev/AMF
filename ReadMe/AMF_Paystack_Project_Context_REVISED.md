@@ -4,7 +4,7 @@
 
 ## Client Request
 
-> "Can you help us build a custom Paystack donation/membership flow for AMF? We want something like Donorbox, but without Stripe. People must be able to choose: membership type and how they pay (monthly, quarterly, or yearly). Then enter their details and pay via Paystack."
+> "Can you help us build a custom Paystack membership flow for AMF? We want something like Donorbox, but without Stripe. People must be able to choose: membership type and how they pay (monthly, quarterly, or yearly). Then enter their details and pay via Paystack."
 
 **Organisation:** AMF (NGO)  
 **Website platform:** Framer (pre-designed — do not modify)  
@@ -21,7 +21,7 @@ Framer does not natively support payment integrations or recurring billing. Buil
 
 ## The Solution
 
-Build a **standalone payment form** (HTML/CSS/JS) hosted on **Netlify** (free). The Donate button on the Framer site links to this form's Netlify URL. The form collects member details and passes them to **Paystack via API** to handle all payment processing.
+Build a **standalone payment form** (HTML/CSS/JS) hosted on **Netlify** (free). The "Become a member" buttons on the Framer site links to this form's Netlify URL. The form collects member details and passes them to **Paystack via API** to handle all payment processing.
 
 ---
 
@@ -53,7 +53,7 @@ Build a **standalone payment form** (HTML/CSS/JS) hosted on **Netlify** (free). 
 
 ```
 Frame 1 — AMF Framer Website
-"Donate" button (already designed in Framer)
+"Become a member" button (already designed in Framer)
         ↓ (links to Netlify URL)
 
 Frame 2 — Netlify Hosted Form (what we build)
@@ -132,7 +132,7 @@ amf-payment-form/
 ├── index.html        → The form (structure and layout)
 ├── styles.css        → Styling (colours, fonts, layout, mobile responsive)
 ├── script.js         → All logic and Paystack integration
-└── success.html      → Thank you / confirmation page
+└── success.html      → Thank you / confirmation page / or unsuccessful transaction > takes you back to the form
 ```
 
 ### What Each File Does
@@ -140,9 +140,9 @@ amf-payment-form/
 | File | Job |
 |---|---|
 | `index.html` | Tier dropdown, frequency dropdown, name/email fields, buttons — the skeleton |
-| `styles.css` | Visual styling — matches AMF brand colours (bright green) and fonts |
+| `styles.css` | Visual styling — matches AMF brand colours (#77DD77) and font for everything: Roboto with 400 weight for all text |
 | `script.js` | Collects input, calculates amount from lookup table, sends to Paystack, handles response |
-| `success.html` | Simple confirmation page shown after successful payment |
+| `success.html` | Simple confirmation page shown indicating where successful or not |
 
 ---
 
@@ -411,23 +411,14 @@ Client should create the Netlify account — developer manages it on their behal
 
 ---
 
-## Scope Summary
-
-✅ Tier dropdown (4 options)  
-✅ Frequency dropdown (3 options, hidden for Open Door)  
-✅ Auto-calculated amount display  
-✅ Name + Email + Phone fields  
-✅ Paystack integration for Community/Champion/Family tiers  
-✅ Paystack Subscription Plans (recurring billing)  
-✅ Open Door → Email signup (no payment)  
-✅ Success page with details  
-✅ Error handling and cancelled payment flow  
-✅ Mobile responsive design  
-✅ Match AMF brand green + typography  
-
-**Budget:** R4,000–5,000  
-**Timeline:** 3 weeks  
-**Hosting:** Netlify free tier
+Features included:
+  - Live summary that updates as you change tier / frequency
+  - Sticky summary card on desktop with subtle elevation while scrolling
+  - Hover / focus / active animations on inputs, payment cards, and CTA
+  - Floating-label pill inputs (matches the original design)
+  - Open Door tier hides the frequency picker and redirects to WhatsApp
+  - Paid tiers open the Paystack inline checkout
+  - Success page reads the transaction details from sessionStorage
 
 ---
 
