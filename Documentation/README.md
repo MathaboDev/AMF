@@ -1,175 +1,181 @@
-# AMF Membership Form — Backend Verification Architecture
+# AMF Membership Form — Complete Architecture & Implementation Guide
 
 ## Executive Summary
 
-A membership signup form with **Paystack subscription management** and **server-side payment verification**. Users select a tier (Community/Champion/Family) and frequency (monthly/quarterly/yearly), pay via Paystack, and are automatically added to recurring billing.
-
-**Key Change:** Added backend verification to comply with Paystack's API requirements and ensure customer data is complete in Paystack.
+A membership signup form enabling users to select tier (Community/Champion/Family/Open Door) and payment frequency (monthly/quarterly/yearly), pay via Paystack, and be automatically added to recurring billing. **Key architecture decision:** Backend verification with customer data synchronization to comply with Paystack API requirements and ensure data integrity.
 
 ---
 
-## What Changed & Why
+## The Problem & Solution
 
-### Previous Approach (Frontend-Only)
-- Form → Paystack popup → User pays → `onSuccess` callback → Show success page
-- **Problem:** No server-side verification; customer names appeared as "No name" in Paystack
+### What Didn't Work
+- **Original approach:** Frontend-only flow. After payment, user saw confirmation, but customer names appeared as "No name" in Paystack dashboard.
+- **Root cause:** No server-side verification or customer data update.
 
-### Paystack's Requirement
-From Paystack's official guidance:
-> "After the user pays, **call the verify API endpoint on your server** to confirm the payment. All calls to Paystack require your secret key in the Authorization header."
+### Why It Matters
+Paystack's official guidance requires:
+1. Server-side verification using SECRET_KEY (not frontend callback)
+2. Customer name synchronization after payment
+3. Audit trail for disputes
 
-### New Approach (Frontend + Backend)
-- Form → Paystack popup → User pays → `onSuccess` callback
-- **Send reference to backend** → Backend verifies with Paystack (secret key)
-- **Backend updates customer name** in Paystack → Success page shows complete data
-- **Paystack dashboard** now displays full member details
-
-**Why This Matters:**
-1. ✅ Verify payment is real (not just frontend callback)
-2. ✅ Update customer name in Paystack (fixes "No name" issue)
-3. ✅ Comply with Paystack's official API workflow
-4. ✅ Audit trail: proof that payment was verified server-side
-
----
-
-## User Journey
-
+### The Solution
+**Frontend → Backend → Paystack** architecture:
 ```
-1. User visits form
-   ├─ Selects: Tier (Community/Champion/Family)
-   ├─ Selects: Frequency (Monthly/Quarterly/Yearly)
-   └─ Enters: First Name, Last Name, Email, Phone (optional)
-
-2. Sees live summary
-   └─ "You are choosing: Champion Advocate - Quarterly"
-   └─ "Total amount: R2,000"
-
-3. Clicks "Proceed to Payment"
-   └─ Paystack modal opens
-
-4. Enters card details (Paystack handles security)
-   └─ Card: 4111 1111 1111 1111 (test)
-   └─ Payment processes
-
-5. Paystack sends reference to frontend
-   └─ Frontend receives: reference, status
-
-6. Frontend sends reference + user data to BACKEND
-   └─ Backend: /verify-payment endpoint
-
-7. BACKEND verifies with Paystack API (secret key)
-   ├─ Calls: https://api.paystack.co/transaction/verify/{reference}
-   └─ Gets: confirmation + customer ID
-
-8. BACKEND updates customer in Paystack
-   ├─ Calls: https://api.paystack.co/customer/{id}
-   ├─ Updates: first_name, last_name, phone
-   └─ Paystack now shows: "John Doe" (not "No name")
-
-9. Frontend shows success page
-   └─ "Payment successful. Welcome to AMF!"
-
-10. Paystack automatically handles recurring charges
-    └─ Monthly: Every month on signup date
-    └─ Quarterly: Every 3 months
-    └─ Yearly: Every 12 months
-
-11. Admin (AMF) checks Paystack dashboard
-    └─ Sees all members with complete names
-    └─ Sees all transactions, subscription status, revenue
+1. User fills form (tier, frequency, name, email, phone)
+2. Clicks "Proceed to Payment" → Paystack modal opens
+3. User pays via Paystack
+4. Frontend receives reference from onSuccess callback (unavoidable)
+5. Frontend sends reference + user data to backend
+6. Backend verifies with Paystack (using SECRET_KEY)
+7. Backend updates customer name in Paystack
+8. Frontend redirects to Welcome page
+9. User sees: "Welcome to AMF. Join WhatsApp. Roland will follow up."
 ```
+
+**Why this is sound:**
+- ✅ Uses PUBLIC_KEY only on frontend (safe)
+- ✅ Uses SECRET_KEY only on backend (secure)
+- ✅ Synchronous verification before redirect (no race conditions)
+- ✅ Paystack customers show full names, not "No name"
+- ✅ Audit trail exists for all transactions
 
 ---
 
 ## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    FRONTEND (index.html)                     │
-│ • Tier + Frequency dropdown                                  │
-│ • Name, Email, Phone fields                                  │
-│ • PaystackPop.setup() with PUBLIC key (safe)                │
-│ • Sends reference to backend on success                      │
-└──────────────────────────┬──────────────────────────────────┘
-                           │ reference + user data
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│              BACKEND (Node.js / verify-payment)             │
-│ • Receives: reference, firstName, lastName, email, phone    │
-│ • Calls: Paystack Verify API (with SECRET key)              │
-│ • Calls: Paystack Update Customer API (with SECRET key)     │
-│ • Returns: { verified: true/false }                         │
-└──────────────────────────┬──────────────────────────────────┘
-                           │ verification result
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│         PAYSTACK (Their servers — PCI compliant)            │
-│ • Stores: Customer data (first_name, last_name, phone)      │
-│ • Manages: Subscription plans, recurring charges            │
-│ • Sends: Webhooks on charge success/failure                 │
-│ • Dashboard: Shows all members, transactions, revenue       │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│ FRONTEND (Netlify) — index.html, styles.css, app.js     │
+│ • Tier dropdown (Community/Champion/Family/Open Door)    │
+│ • Frequency dropdown (Monthly/Quarterly/Yearly)          │
+│ • Auto-calculated amount display                         │
+│ • Form validation                                        │
+│ • PaystackPop.setup() with PUBLIC_KEY                    │
+│ • POST /verify-payment with reference + user data        │
+└──────────────────┬───────────────────────────────────────┘
+                   │ reference + {firstName, lastName, email, phone}
+                   ▼
+┌──────────────────────────────────────────────────────────┐
+│ BACKEND (Node.js) — server.js + routes/payments.js       │
+│ POST /verify-payment:                                    │
+│ 1. Receive reference + user details                      │
+│ 2. Call Paystack Verify API (+ SECRET_KEY)               │
+│ 3. Get customer ID from response                         │
+│ 4. Call Paystack Update Customer API                     │
+│ 5. Return { verified: true/false }                       │
+└──────────────────┬───────────────────────────────────────┘
+                   │ verification result
+                   ▼
+┌──────────────────────────────────────────────────────────┐
+│ PAYSTACK (Their servers — PCI compliant)                 │
+│ • Stores customer data (first_name, last_name, phone)    │
+│ • Manages subscription plans, recurring charges          │
+│ • Dashboard shows members with complete names            │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## File Structure (Updated)
+## Membership Tiers & Pricing (Fixed)
+
+| Tier | Monthly | Quarterly | Yearly |
+|---|---|---|---|
+| **Open Door** | Free | Free | Free |
+| **Community** | R50 | R200 | R600 |
+| **Champion** | R500 | R2,000 | R6,000 |
+| **Family** | R400 | R1,600 | R4,800 |
+
+Formula: `Amount = Base Price × Frequency Multiplier` (Monthly=1, Quarterly=4, Yearly=12)
+
+---
+
+## File Structure
 
 ```
 amf-membership-form/
-│
-├── FRONTEND (Netlify)
-│   ├── index.html              ← Form structure + Paystack script
-│   ├── app.js                  ← Form logic, validation, API calls
-│   ├── styles.css              ← Responsive styling
-│   ├── success.html            ← Success/failure page
-│   └── netlify.toml            (optional) Redirect config
-│
-├── BACKEND (Node.js — your server)
-│   ├── server.js               ← Express server (NEW — REQUIRED)
-│   ├── routes/
-│   │   └── payments.js         ← POST /verify-payment (NEW — REQUIRED)
-│   ├── .env                    ← SECRET_KEY, PUBLIC_KEY (NEW — REQUIRED)
-│   └── package.json            ← Dependencies (NEW — REQUIRED)
-│
-└── DOCS
-    ├── README.md               ← This file
-    └── DEPLOYMENT.md           (optional) Hosting instructions
+
+FRONTEND (Netlify)
+├── index.html              (Form structure + Paystack script tag)
+├── app.js                  (Logic: validation, amount calc, API calls)
+├── styles.css              (Responsive styling)
+└── welcome.html            (Post-payment welcome page)
+
+BACKEND (Node.js server)
+├── server.js               (Express app, middleware)
+├── routes/payments.js      (POST /verify-payment endpoint)
+├── .env                    (PAYSTACK_SECRET_KEY, PORT)
+└── package.json            (Dependencies)
 ```
 
 ---
 
-## What's Missing (Must Build)
+## Frontend Implementation
 
-| Item | File | Purpose |
-|---|---|---|
-| ✅ Form | `index.html` | Already exists |
-| ✅ Styling | `styles.css` | Already exists |
-| ✅ Logic | `app.js` | **UPDATE:** Add backend call in `onSuccess` |
-| ✅ Success page | `success.html` | Already exists |
-| ❌ Backend server | `server.js` | **NEW: Required** — Express app |
-| ❌ Verify endpoint | `routes/payments.js` | **NEW: Required** — Paystack API calls |
-| ❌ Environment file | `.env` | **NEW: Required** — Store SECRET_KEY |
-| ❌ Dependencies | `package.json` | **NEW: Required** — Node packages |
+### Key Methods in app.js
+
+**handleTierChange()** — Show/hide frequency dropdown
+```javascript
+if (tier === 'open-door') {
+  frequencyDropdown.style.display = 'none';
+  amount = 0;
+  button.innerHTML = 'Join our WhatsApp';
+} else {
+  frequencyDropdown.style.display = 'block';
+  calculateAmount();
+}
+```
+
+**calculateAmount()** — Lookup table (no math)
+```javascript
+const lookup = {
+  community: { monthly: 50, quarterly: 200, yearly: 600 },
+  champion: { monthly: 500, quarterly: 2000, yearly: 6000 },
+  family: { monthly: 400, quarterly: 1600, yearly: 4800 }
+};
+amount = lookup[tier][frequency];
+```
+
+**sendToPaystack()** — Open payment modal
+```javascript
+PaystackPop.setup({
+  key: 'pk_test_YOUR_PUBLIC_KEY',
+  email: emailInput.value,
+  amount: amount * 100,  // Convert to cents
+  plan: planId,          // Pre-created in Paystack dashboard
+  metadata: { name, tier, frequency, phone },
+  onSuccess: (response) => verifyOnBackend(response.reference),
+  onCancel: () => showError('Payment cancelled')
+}).openIframe();
+```
+
+**verifyOnBackend()** — Send reference to backend
+```javascript
+fetch('/verify-payment', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    reference: response.reference,
+    firstName: firstNameInput.value,
+    lastName: lastNameInput.value,
+    email: emailInput.value,
+    phone: phoneInput.value
+  })
+})
+.then(res => res.json())
+.then(data => {
+  if (data.verified) {
+    window.location.href = 'welcome.html';
+  } else {
+    showError('Payment verification failed.');
+  }
+});
+```
 
 ---
 
-## Backend Setup (Required)
+## Backend Implementation
 
-### 1. Create Node.js Project
-```bash
-npm init -y
-npm install express dotenv node-fetch cors
-```
-
-### 2. Create `.env`
-```
-PAYSTACK_SECRET_KEY=sk_test_your_secret_key_here
-PAYSTACK_PUBLIC_KEY=pk_test_your_public_key_here
-PORT=3000
-```
-
-### 3. Create `server.js`
+### server.js
 ```javascript
 const express = require('express');
 const paymentRoutes = require('./routes/payments');
@@ -180,16 +186,11 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/verify-payment', paymentRoutes.verifyPayment);
-
-app.listen(process.env.PORT, () => {
-  console.log(`Backend running on port ${process.env.PORT}`);
-});
+app.listen(process.env.PORT, () => console.log(`Server on port ${process.env.PORT}`));
 ```
 
-### 4. Create `routes/payments.js`
+### routes/payments.js — verifyPayment()
 ```javascript
-const fetch = require('node-fetch');
-
 exports.verifyPayment = async (req, res) => {
   const { reference, firstName, lastName, phone } = req.body;
   const secretKey = process.env.PAYSTACK_SECRET_KEY;
@@ -198,9 +199,7 @@ exports.verifyPayment = async (req, res) => {
     // Step 1: Verify transaction
     const verifyRes = await fetch(
       `https://api.paystack.co/transaction/verify/${reference}`,
-      {
-        headers: { Authorization: `Bearer ${secretKey}` }
-      }
+      { headers: { Authorization: `Bearer ${secretKey}` } }
     );
     const verifyData = await verifyRes.json();
 
@@ -208,7 +207,7 @@ exports.verifyPayment = async (req, res) => {
       return res.json({ verified: false });
     }
 
-    // Step 2: Update customer
+    // Step 2: Update customer in Paystack
     const customerId = verifyData.data.customer.id;
     await fetch(`https://api.paystack.co/customer/${customerId}`, {
       method: 'PUT',
@@ -231,94 +230,94 @@ exports.verifyPayment = async (req, res) => {
 };
 ```
 
+### .env
+```
+PAYSTACK_SECRET_KEY=sk_test_your_secret_key_here
+PAYSTACK_PUBLIC_KEY=pk_test_your_public_key_here
+PORT=3000
+```
+
 ---
 
-## Frontend Update (Required)
+## Paystack Setup (Required Before Launch)
 
-In `app.js`, update `handleSuccess()`:
+**Create these plans in Paystack Dashboard:**
 
-```javascript
-function handleSuccess(response) {
-  fetch('/verify-payment', {  // ← Send to YOUR backend
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      reference: response.reference,
-      firstName: firstNameInput.value,
-      lastName: lastNameInput.value,
-      email: emailInput.value,
-      phone: phoneInput.value
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.verified) {
-      sessionStorage.setItem('successData', JSON.stringify({...}));
-      window.location.href = 'success.html';
-    } else {
-      showError('Payment verification failed.');
-    }
-  });
-}
-```
+| Plan | Interval | Amount (ZAR) |
+|---|---|---|
+| Community Monthly | Monthly | 5,000 (R50) |
+| Community Quarterly | Quarterly | 20,000 (R200) |
+| Community Yearly | Yearly | 60,000 (R600) |
+| Champion Monthly | Monthly | 50,000 (R500) |
+| Champion Quarterly | Quarterly | 200,000 (R2,000) |
+| Champion Yearly | Yearly | 600,000 (R6,000) |
+| Family Monthly | Monthly | 40,000 (R400) |
+| Family Quarterly | Quarterly | 160,000 (R1,600) |
+| Family Yearly | Yearly | 480,000 (R4,800) |
+
+Copy Plan IDs into frontend lookup table.
 
 ---
 
 ## Deployment
 
-**Frontend (Netlify):**
-- Drag project folder → netlify.com
-- Gets HTTPS + free SSL
+### Frontend (Netlify)
+- Drag folder to netlify.com
+- Auto-deploys on git push
+- Gets free HTTPS + SSL
+- Update `fetch('/verify-payment')` to point to backend URL
 
-**Backend (Heroku/Railway/Render):**
-- Set environment variables (SECRET_KEY, PUBLIC_KEY)
-- Update frontend to call backend URL: `https://your-backend.com/verify-payment`
+### Backend (Heroku/Railway/Render)
+- Set environment variables (SECRET_KEY, PUBLIC_KEY, PORT)
+- Frontend calls: `https://your-backend.com/verify-payment`
 
 ---
 
-## Paystack Plans (Pre-Created)
+## Welcome Page (welcome.html)
 
-You must create these plans in Paystack Dashboard → Plans:
-
-| Plan Name | Amount | Interval | Plan ID |
-|---|---|---|---|
-| Community Monthly | R50 | Monthly | `PLN_k9zqr6la5vxk9yp` |
-| Community Quarterly | R200 | Quarterly | `PLN_zkisy4f2qwfn3x7` |
-| Community Yearly | R600 | Yearly | (create) |
-| Champion Monthly | R500 | Monthly | (create) |
-| Champion Quarterly | R2,000 | Quarterly | `PLN_w570e9g90wkw1ur` |
-| Champion Yearly | R6,000 | Yearly | (create) |
-| Family Monthly | R400 | Monthly | (create) |
-| Family Quarterly | R1,600 | Quarterly | (create) |
-| Family Yearly | R4,800 | Yearly | `PLN_hlcmzpngewf3ur2` |
+Replace generic "Transaction Success" with:
+```html
+<h1>Welcome to AMF!</h1>
+<p>We've sent a confirmation email to [email].</p>
+<p>Join our community:</p>
+<a href="https://chat.whatsapp.com/your-group" class="btn">
+  Join WhatsApp Community
+</a>
+<p>Roland will get back to you shortly with next steps.</p>
+<a href="https://amf.org.za" class="btn-secondary">Return to AMF</a>
+```
 
 ---
 
 ## Testing Checklist
 
-- [ ] Form validates all fields
-- [ ] Paystack modal opens
-- [ ] Test card charges successfully
-- [ ] Backend receives reference
-- [ ] Paystack confirms payment
-- [ ] Customer name updates in Paystack dashboard
-- [ ] Success page displays
-- [ ] All tier/frequency combinations tested (9 total)
-- [ ] Mobile responsiveness verified
-- [ ] Switch to live keys before launch
+- [ ] All form fields validate (required fields)
+- [ ] Amount updates correctly for all 9 tier/frequency combinations
+- [ ] Open Door tier hides frequency dropdown
+- [ ] Paystack modal opens with correct amount in cents
+- [ ] Backend receives reference + user data
+- [ ] Paystack verifies payment successfully
+- [ ] Paystack customer record updates with name
+- [ ] Frontend redirects to welcome.html after verification
+- [ ] Mobile responsive on both desktop and mobile
+- [ ] Test with Paystack test keys first
+- [ ] Switch to live keys before production launch
 
 ---
 
-## Key Differences From Original
+## Key Architectural Decisions
 
-| Original | Updated | Reason |
-|---|---|---|
-| Frontend-only flow | Frontend + Backend | Paystack requires server verification |
-| No customer name update | Backend updates Paystack | Fix "No name" issue |
-| Trust `onSuccess` callback | Verify with secret key | Security + compliance |
-| No audit trail | Verified server-side | Proof for disputes |
+| Decision | Why |
+|---|---|
+| Backend verification | Paystack requires SECRET_KEY verification; prevents fraud |
+| Customer name sync | Fixes "No name" issue in Paystack dashboard |
+| Welcome page not success | Paystack already shows transaction status; avoid redundancy |
+| Frontend-initiated verification | onSuccess callback is unavoidable; using it is the right pattern |
+| Lookup table not math | Fixed pricing reduces calculation errors and complexity |
+| Separate endpoints | Each file has one responsibility; easier to test and maintain |
 
 ---
 
-**Status:** Ready for backend development  
-**Last Updated:** June 22, 2026
+**Status:** Ready for development  
+**Architecture:** Finalized and validated  
+**Security:** Backend verified, compliant with Paystack requirements
