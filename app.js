@@ -16,6 +16,7 @@
   // ========== CONFIGURATION ==========
   
   var CONFIG = {
+    BACKEND_URL: "http://localhost:3000", //change with backend url
     PAYSTACK_PUBLIC_KEY: "pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     WHATSAPP_INVITE_URL: "https://chat.whatsapp.com/your-invite-code",
     
